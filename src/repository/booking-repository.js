@@ -21,65 +21,6 @@ class BookingRepository{
         }
     }
 
-    //   async update(bookingId, data){
-    //     try {
-    //         const booking= await Booking.findByPk(bookingId);
-
-    //         if(data.status){
-    //             booking.status= data.status;
-    //         }
-    //         await booking.save();
-    //         return booking;
-    //     } catch (error) {
-    //         throw new AppError(
-    //             'Repository Error',
-    //             'cannot update Booking',
-    //             'There was some issue update the booking,please try again later',
-    //             StatusCodes.INTERNAL_SERVER_ERROR
-    //         );
-    //     }
-    // }
-
-
-    // async update(bookingId, data){
-    //     try {
-    //         const booking= await Booking.findByPk(bookingId);
-
-    //         if(data.status){
-    //             booking.status= data.status;
-    //         }
-    //         await booking.save();
-    //         return booking;
-    //     } catch (error) {
-    //         throw new AppError(
-    //             'Repository Error',
-    //             'cannot update Booking',
-    //             'There was some issue update the booking,please try again later',
-    //             StatusCodes.INTERNAL_SERVER_ERROR
-    //         );
-    //     }
-    // }
-
-    // async getById(bookingId){
-    //     try {
-    //         const booking= await Booking.findByPk(bookingId);
-    //         if(!booking){ throw new AppError(
-    //             'Repository Error',
-    //             'Booking not found',
-    //             `No booking found with ID ${bookingId}`,
-    //             StatusCodes.NOT_FOUND
-    //         );
-    //     }
-    //     return booking;
-    //     } catch (error) {
-    //         throw new AppError(
-    //             'Repository Error',
-    //             'cannot update Booking',
-    //             'There was some issue update the booking,please try again later',
-    //             StatusCodes.INTERNAL_SERVER_ERROR
-    //         );
-    //     }
-    // }
     
 
     async update(bookingId, data) {

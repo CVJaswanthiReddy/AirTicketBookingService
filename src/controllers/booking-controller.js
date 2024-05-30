@@ -1,31 +1,49 @@
 const{StatusCodes}= require('http-status-codes');
 const{BookingService}= require('../services/index');
-
+const{createChannel,publishMessage}= require('../utilis/errors/messageQueue')
+const{REMAINDER_BINDING_KEY}=require('../config/serverConfig');
 const bookingService=new BookingService();
 
-const create = async(req,res)=>{
-    try {
-        const response= await bookingService.createBooking(req.body);
-        return res.status(StatusCodes.OK).json({
-            message:'Siccessfully completed booking',
-            success:true,
-            err:{},
-            data:response
-        })
-    } catch (error) {
-        return res.status(error.statusCode).json({
-            message:error.message,
-            success:false,
-            err:error.explanation,
-            data:{}
-        });
-    }
-}
+class BookingController{
 
-const cancel = async (req, res) => {
+    constructor()
+    {
+        
+    }
+
+    async sendMessageToQueue(req,res){
+        const channel= await createChannel();
+        const data= {message: 'success'};
+        publishMessage(channel,REMAINDER_BINDING_KEY,JSON.stringify(data));
+        return res.status(200).json({
+            message:'Successfully published the event'
+        })
+    }
+    async create (req,res){
+        try {
+            const response= await bookingService.createBooking(req.body);
+            return res.status(StatusCodes.OK).json({
+                message:'Siccessfully completed booking',
+                success:true,
+                err:{},
+                data:response
+            })
+        } catch (error) {
+            return res.status(error.statusCode).json({
+                message:error.message,
+                success:false,
+                err:error.explanation,
+                data:{}
+            });
+        }
+    }
+
+    
+
+    async cancel  (req, res) 
+     {
     try {
-       
-        const response = await bookingService.cancelBooking(req.params.id);
+       const response = await bookingService.cancelBooking(req.params.id);
         return res.status(StatusCodes.OK).json({
             message: 'Successfully cancelled booking',
             success: true,
@@ -42,7 +60,6 @@ const cancel = async (req, res) => {
 }
 
 
-module.exports={
-    create,
-    cancel
 }
+
+module.exports= BookingController
