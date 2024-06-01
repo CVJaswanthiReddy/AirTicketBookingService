@@ -1,13 +1,14 @@
 const axios= require('axios');
-
+const amqp= require('amqplib')
 const {BookingRepository}= require('../repository/index');
-const{FLIGHT_SERVICE_PATH}=require('../config/serverConfig');
+const{FLIGHT_SERVICE_PATH, MESSAGE_BROKER_URL}=require('../config/serverConfig');
 const {ServiceError}  = require('../utilis/errors/index');
+const { createChannel, publishMessage } = require('../utilis/errors/messageQueue');
 const {response}= require('express');
 class BookingService{
     constructor()
     {
-        this.bookingRepository= new BookingRepository();
+        this.bookingRepository = new BookingRepository();
     }
     async createBooking(data){
         try {
@@ -30,8 +31,20 @@ class BookingService{
                 const updateFlightRequestURL=`${FLIGHT_SERVICE_PATH}/api/v1/flights/${booking.flightId}`
                 await axios.patch(updateFlightRequestURL,{totalSeats: flighData.totalSeats- booking.noOfSeats});
                 const finalBooking= await this.bookingRepository.update(booking.id, {status:"Booked"});
-
-                return finalBooking;
+                
+                const channel = await createChannel();
+                const payload = {
+                    data: {
+                        subject: 'Booking Confirmation',
+                        content: `Your booking is confirmed. Booking ID: ${finalBooking.id}`,
+                        recipientEmail: data.email,
+                        notificationTime: new Date().toISOString()
+                    },
+                    service: 'SEND_BASIC_MAIL'
+                };
+                await publishMessage(channel, REMAINDER_BINDING_KEY, JSON.stringify(payload));
+    
+               return finalBooking;
             } catch (error) { 
             if(error.name=='RepositoryError' || error.name== 'ValidationError'){
                 throw error;
